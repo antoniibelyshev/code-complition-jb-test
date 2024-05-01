@@ -4,7 +4,7 @@ import json
 
 def write_dataset(samples: List[Tuple[str, str]], filename: str) -> None:
     with open(filename, 'w') as f:
-        f.write('\n'.join(f"{{prompt: {sample[0]}, answer: {sample[1]}}}" for sample in samples))
+        f.write('\n'.join(f"{{\"prompt\": \"{sample[0]}\", \"answer\": \"{sample[1]}\"}}" for sample in samples))
 
 
 class CodeCompletionDataset:
