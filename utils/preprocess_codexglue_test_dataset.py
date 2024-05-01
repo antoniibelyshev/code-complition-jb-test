@@ -1,25 +1,30 @@
 import json
-from dataset import write_dataset
 from typing import List, Tuple
 
 
-replacements = {
-    '<EOL>': '\n',
-    '<INDENT>': '    ',
-    '<DEDENT>': '',
-    '<STR_LIT>': '',
-    '<NUM_LIT>': '',
-}
+def read_codexglue_test_data() -> Tuple[List[str], List[str]]:
+    replacements = [
+        ('<EOL>', '\n'),
+        ('<INDENT>', '    '),
+        ('<DEDENT>', ''),
+        ('<STR_LIT>', ''),
+        ('<NUM_LIT>', ''),
+    ]
 
-samples: List[Tuple[str, str]] = []
-with open("codexglue_method_generation/test.jsonl") as f:
-    for line in f:
-        data = json.loads(line)
+    prompts: List[str] = []
+    answers: List[str] = []
+    with open("codexglue_method_generation/test.jsonl") as f:
+        for line in f:
+            data = json.loads(line)
 
-        signature = data['signature']
-        docstring = data['docstring']
+            signature = data['signature']
+            docstring = data['docstring']
+            prompt = "\n    ".join([signature, docstring, ""])
+            prompts.append(prompt)
 
-        samples.append(("\n    ".join([signature, docstring, ""]), data['body']))
+            answer = data['body']
+            for symbol, replacement in replacements:
+                answer = answer.replace(symbol, replacement)
+            answers.append(answer)
 
-
-write_dataset(samples, "./data/test_python_dataset.json")
+    return prompts, answers
