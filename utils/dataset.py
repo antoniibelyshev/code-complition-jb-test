@@ -25,7 +25,13 @@ class CodeCompletionDataset:
     
     @staticmethod
     def from_json(filename: str, *, train: bool):
+        prompts: List[str] = []
+        answers: List[str] = []
         with open(filename, 'r') as f:
-            data = json.load(f)
+            for line in f:
+                data = json.loads(line)
 
-        return CodeCompletionDataset(data['prompts'], data['answers'], train)
+                prompts.append(data['prompt'])
+                answers.append(data['answer'])
+
+        return CodeCompletionDataset(prompts, answers, train)
