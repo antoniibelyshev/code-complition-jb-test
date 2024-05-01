@@ -5,7 +5,7 @@ from tqdm import tqdm
 from typing import List
 
 
-def evaluate(model: torch.nn.Module, tokenizer, eval_dataset, *, max_length: int = 100):
+def evaluate(model: torch.nn.Module, tokenizer, eval_dataset, *, max_new_tokens: int = 100):
     completions: List[str] = []
     answers: List[str] = []
     model.eval()
@@ -14,7 +14,7 @@ def evaluate(model: torch.nn.Module, tokenizer, eval_dataset, *, max_length: int
             prompt_tensor = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
             output = model.generate(
                 prompt_tensor,
-                max_new_tokens=max_length,
+                max_new_tokens=max_new_tokens,
                 num_return_sequences=1,
                 pad_token_id=model.config.pad_token_id,
                 eos_token_id=model.config.eos_token_id,
@@ -26,5 +26,5 @@ def evaluate(model: torch.nn.Module, tokenizer, eval_dataset, *, max_length: int
 
     return {
         "accuracy score": accuracy_score(answers, completions),
-        "bleu score": corpus_bleu([[ans.split()] for ans in answers], [comp.split() for comp in completions]),
+        "bleu score": corpus_bleu([comp.split() for comp in completions], [[ans.split()] for ans in answers]),
     }
