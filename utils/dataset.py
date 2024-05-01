@@ -24,7 +24,7 @@ class CodeCompletionDataset:
             return self.prompts[index], self.answers[index]
     
     @staticmethod
-    def from_json(filename: str, train: bool):
+    def from_json(filename: str, *, train: bool):
         with open(filename, 'r') as f:
             data = json.load(f)
 
