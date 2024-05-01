@@ -18,7 +18,7 @@ def read_codexglue_test_data() -> Tuple[List[str], List[str]]:
             data = json.loads(line)
 
             signature = data['signature']
-            docstring = data['docstring']
+            docstring = "\"\"\"\n    " + data['docstring'].replace("\n", "\n    ") + "\n    \"\"\""
             prompt = "\n    ".join([signature, docstring, ""])
             prompts.append(prompt)
 
