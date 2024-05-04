@@ -89,7 +89,7 @@ def extract_kotlin_code(
     return prompts, answers
 
 
-def read_codexglue_test_data() -> Tuple[List[str], List[str]]:
+def read_codexglue_test_data(n: int = 20000) -> Tuple[List[str], List[str]]:
     replacements = [
         ('<EOL>', '\n'),
         ('<INDENT>', '    '),
@@ -101,7 +101,7 @@ def read_codexglue_test_data() -> Tuple[List[str], List[str]]:
     prompts: List[str] = []
     answers: List[str] = []
     with open("codexglue_method_generation/test.jsonl") as f:
-        for line in f:
+        for line in f.readlines()[:n]:
             data = json.loads(line)
 
             signature = data['signature']

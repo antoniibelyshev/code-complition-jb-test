@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+import wandb
 
 
 def train_model(
@@ -8,8 +9,8 @@ def train_model(
     tokenizer,
     train_dataset,
     batch_size = 2,
-    epochs = 1,
-    learning_rate = 5e-5,
+    epochs = 10,
+    learning_rate = 1e-4,
 ):
     train_loader = DataLoader(torch.arange(len(train_dataset)), batch_size=batch_size, shuffle=True)
 
@@ -17,13 +18,15 @@ def train_model(
     for param in model.parameters():
         param.requires_grad = False
 
-    for param in model.model.layers[-1].parameters():
-        param.requires_grad = True
+    for layer in model.model.layers[-5:]:
+        for param in layer.parameters():
+            param.requires_grad = True
 
     # Define optimizer and scheduler
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
-    # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
 
+    run = wandb.init(entity="antonii-belyshev", project="finetune")
     # Fine-tuning loop
     for epoch in range(epochs):
         model.train()
@@ -32,8 +35,9 @@ def train_model(
             tokens = tokenizer([train_dataset[i] for i in batch], padding=True, truncation=True)
             del batch
 
-            input_ids = torch.tensor(tokens['input_ids'], device=model.device)
-            attention_mask = torch.tensor(tokens['attention_mask'], device=model.device)
+            input_ids = [tokens_seq + [tokenizer.eos_token_id] for tokens_seq in tokens['input_ids']]
+            input_ids = torch.tensor(input_ids, device=model.device)
+            attention_mask = torch.ones_like(input_ids)
             del tokens
             
             optimizer.zero_grad()
@@ -43,10 +47,16 @@ def train_model(
             loss.backward()
             optimizer.step()
 
+            wandb.log({"loss": loss.detach().cpu()})
+
             progress_bar.set_description(f'Epoch [{epoch+1}/{epochs}], Loss: {loss:.4f}')
             torch.cuda.empty_cache()
+        
+        scheduler.step()
+
+    wandb.finish()
 
     # Save the fine-tuned model
-    model.save_pretrained("fine_tuned_model")
+    # model.save_pretrained("fine_tuned_model")
 
     return model
