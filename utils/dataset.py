@@ -60,8 +60,9 @@ def extract_kotlin_code(
     answers: List[str] = []
     parse_errors_count = 0
     declaration_errors_count = 0
+
+    # there are some problems for kopyt with some of the files, so I skip a few files
     for filename in tqdm(kotlin_files[:8300] + kotlin_files[8400:]):
-    # for filename in tqdm(kotlin_files[:300]):
         with open(filename) as f:
             kotlin_code = f.read()
 

@@ -15,7 +15,7 @@ def train_model(
 ):
     train_loader = DataLoader(torch.arange(len(train_dataset)), batch_size=batch_size, shuffle=True)
 
-    # freeze all layers except the last one
+    # freeze all layers except the last five
     for param in model.parameters():
         param.requires_grad = False
 
@@ -57,8 +57,4 @@ def train_model(
         scheduler.step()
 
     wandb.finish()
-
-    # Save the fine-tuned model
-    # model.save_pretrained("fine_tuned_model")
-
     return model

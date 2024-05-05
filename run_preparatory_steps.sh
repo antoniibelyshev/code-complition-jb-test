@@ -3,6 +3,7 @@ pip install transformers -U
 pip install nltk
 pip install rouge
 pip install kopyt
+pip install wandb
 
 echo "Cloning kotlin repo..."
 git clone https://github.com/JetBrains/kotlin.git
