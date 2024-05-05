@@ -9,7 +9,8 @@ def train_model(
     tokenizer,
     train_dataset,
     batch_size = 2,
-    epochs = 10,
+    start_epoch = 0,
+    end_epoch = 6,
     learning_rate = 1e-4,
 ):
     train_loader = DataLoader(torch.arange(len(train_dataset)), batch_size=batch_size, shuffle=True)
@@ -28,7 +29,7 @@ def train_model(
 
     run = wandb.init(entity="antonii-belyshev", project="finetune")
     # Fine-tuning loop
-    for epoch in range(epochs):
+    for epoch in range(start_epoch, end_epoch):
         model.train()
         progress_bar = tqdm(train_loader, total=len(train_loader))
         for batch in progress_bar:
@@ -52,6 +53,7 @@ def train_model(
             progress_bar.set_description(f'Epoch [{epoch+1}/{epochs}], Loss: {loss:.4f}')
             torch.cuda.empty_cache()
         
+        model.save_pretrained(f"checkpoint_after_epoch_{epoch}")
         scheduler.step()
 
     wandb.finish()
